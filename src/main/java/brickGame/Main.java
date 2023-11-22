@@ -186,12 +186,13 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     }
 
     private void initBoard() {
+        Random random = new Random();
+
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < level + 1; j++) {
-                int r = new Random().nextInt(500);
-                if (r % 5 == 0) {
-                    continue;
-                }
+                // Remove the condition that skips block creation
+                int r = random.nextInt(500);
+
                 int type;
                 if (r % 10 == 1) {
                     type = Block.BLOCK_CHOCO;
@@ -207,11 +208,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 } else {
                     type = Block.BLOCK_NORMAL;
                 }
+
                 blocks.add(new Block(j, i, colors[r % (colors.length)], type));
-                //System.out.println("colors " + r % (colors.length));
             }
         }
     }
+
 
 
     public static void main(String[] args) {
