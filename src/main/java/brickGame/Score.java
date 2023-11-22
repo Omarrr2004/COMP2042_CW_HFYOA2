@@ -42,10 +42,11 @@ public class Score {
             try {
                 for (int i = 0; i < 21; i++) {
                     final int scale = Math.abs(i - 10);
+                    final double opacity = (20 - scale) / 20.0;
                     Platform.runLater(() -> {
-                        label.setScaleX(scale);
-                        label.setScaleY(scale);
-                        label.setOpacity((20 - scale) / 20.0);
+                        label.setScaleX(scale / 2.0);  // Adjust the scale factor as needed
+                        label.setScaleY(scale / 2.0);
+                        label.setOpacity(opacity);
                     });
                     Thread.sleep(15);
                 }
@@ -60,6 +61,7 @@ public class Score {
             }
         }).start();
     }
+
 
     public void showGameOver(final Main main) {
         Platform.runLater(() -> {
