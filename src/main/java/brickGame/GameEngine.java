@@ -1,105 +1,75 @@
 package brickGame;
 
+import javafx.application.Platform;
 
 public class GameEngine {
 
     private OnAction onAction;
     private int fps = 15;
-    private Thread updateThread;
-    private Thread physicsThread;
-    public boolean isStopped = true;
+    private volatile boolean isRunning = true;
 
     public void setOnAction(OnAction onAction) {
         this.onAction = onAction;
     }
 
-    /**
-     * @param fps set fps and we convert it to millisecond
-     */
     public void setFps(int fps) {
-        this.fps = (int) 1000 / fps;
-    }
-
-    private synchronized void Update() {
-        updateThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!updateThread.isInterrupted()) {
-                    try {
-                        onAction.onUpdate();
-                        Thread.sleep(fps);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        updateThread.start();
-    }
-
-    private void Initialize() {
-        onAction.onInit();
-    }
-
-    private synchronized void PhysicsCalculation() {
-        physicsThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!physicsThread.isInterrupted()) {
-                    try {
-                        onAction.onPhysicsUpdate();
-                        Thread.sleep(fps);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        physicsThread.start();
-
+        this.fps = fps;
     }
 
     public void start() {
-        time = 0;
-        Initialize();
-        Update();
-        PhysicsCalculation();
-        TimeStart();
-        isStopped = false;
+        isRunning = true;
+        initialize();
+
+        new Thread(this::gameLoop).start();
+        new Thread(this::timeStart).start();
     }
 
     public void stop() {
-        if (!isStopped) {
-            isStopped = true;
-            updateThread.stop();
-            physicsThread.stop();
-            timeThread.stop();
+        isRunning = false;
+    }
+
+    private void initialize() {
+        runOnUIThread(() -> onAction.onInit());
+    }
+
+    private void gameLoop() {
+        while (isRunning) {
+            long startTime = System.currentTimeMillis();
+
+            runOnUIThread(() -> {
+                onAction.onUpdate();
+                onAction.onPhysicsUpdate();
+            });
+
+            long sleepTime = 1000 / fps - (System.currentTimeMillis() - startTime);
+            if (sleepTime > 0) {
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 
     private long time = 0;
 
-    private Thread timeThread;
+    private void timeStart() {
+        while (isRunning) {
+            try {
+                Thread.sleep(1);
+                time++;
 
-    private void TimeStart() {
-        timeThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        time++;
-                        onAction.onTime(time);
-                        Thread.sleep(1);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                runOnUIThread(() -> onAction.onTime(time));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        });
-        timeThread.start();
+        }
     }
 
+    private void runOnUIThread(Runnable runnable) {
+        Platform.runLater(runnable);
+    }
 
     public interface OnAction {
         void onUpdate();
@@ -110,5 +80,4 @@ public class GameEngine {
 
         void onTime(long time);
     }
-
 }
