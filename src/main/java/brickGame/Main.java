@@ -719,7 +719,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         checkDestroyedCount();
         setPhysicsToBall();
 
-
         if (time - goldTime > 5000) {
             ball.setFill(new ImagePattern(new Image("ball.png")));
             root.getStyleClass().remove("goldRoot");
@@ -727,22 +726,25 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
 
         for (Bonus choco : chocos) {
-            if (choco.y > sceneHeigt || choco.taken) {
-                continue;
+            if (!choco.taken) {
+                choco.y += ((time - choco.timeCreated) / 1000.0) + 1.0;
+                choco.choco.setY(choco.y);
+
+                // Check for collision with the player
+                if (choco.y + choco.choco.getHeight() >= yBreak &&
+                        choco.y <= yBreak + breakHeight &&
+                        choco.x + choco.choco.getWidth() >= xBreak &&
+                        choco.x <= xBreak + breakWidth) {
+
+                    choco.taken = true;
+                    choco.choco.setVisible(false);
+                    score += 3;
+                    new Score().show(choco.x, choco.y, 3, this);
+                }
             }
-            if (choco.y >= yBreak && choco.y <= yBreak + breakHeight && choco.x >= xBreak && choco.x <= xBreak + breakWidth) {
-                System.out.println("You Got it and +3 score for you");
-                choco.taken = true;
-                choco.choco.setVisible(false);
-                score += 3;
-                new Score().show(choco.x, choco.y, 3, this);
-            }
-            choco.y += ((time - choco.timeCreated) / 1000.000) + 1.000;
         }
-
-        //System.out.println("time is:" + time + " goldTime is " + goldTime);
-
     }
+
 
 
     @Override
