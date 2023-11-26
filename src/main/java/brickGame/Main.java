@@ -277,12 +277,24 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     private void initBall() {
         Random random = new Random();
-        xBall = random.nextInt(sceneWidth) + 1;
-        yBall = random.nextInt(sceneHeigt - 200) + ((level + 1) * Block.getHeight()) + 15;
+        xBall = sceneWidth / 2.0;  // Start in the middle of the scene
+
+        // Calculate the last row for the current level
+        int lastRow = (level - 1) * 1 + 4;  // Increase the multiplier for each level
+
+        // Find the bottom position of the last block
+        double lastBlockBottom = lastRow * Block.getHeight() + Block.getPaddingTop() + Block.getHeight();
+
+        // Set yBall a little below the last block
+        yBall = lastBlockBottom + 15;
+
         ball = new Circle();
         ball.setRadius(ballRadius);
         ball.setFill(new ImagePattern(new Image("ball.png")));
     }
+
+
+
 
     private void initBreak() {
         rect = new Rectangle();
