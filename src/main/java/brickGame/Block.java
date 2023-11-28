@@ -80,26 +80,38 @@ public class Block implements Serializable {
     }
 
 
-    public int checkHitToBlock(double xBall, double yBall) {
-
+    public int checkHitToBlock(double xBall, double yBall, double ballRadius) {
         if (isDestroyed) {
             return NO_HIT;
         }
 
-        if (xBall >= x && xBall <= x + width && yBall == y + height) {
-            return HIT_BOTTOM;
-        }
+        // Calculate ball's bounding box
+        double ballLeft = xBall - ballRadius;
+        double ballRight = xBall + ballRadius;
+        double ballTop = yBall - ballRadius;
+        double ballBottom = yBall + ballRadius;
 
-        if (xBall >= x && xBall <= x + width && yBall == y) {
+        // Define the block's boundaries
+        double blockLeft = x;
+        double blockRight = x + width;
+        double blockTop = y;
+        double blockBottom = y + height;
+
+        // Check for collision with each side of the block
+        boolean collidesWithLeft = ballRight > blockLeft && ballLeft < blockLeft && yBall > blockTop && yBall < blockBottom;
+        boolean collidesWithRight = ballLeft < blockRight && ballRight > blockRight && yBall > blockTop && yBall < blockBottom;
+        boolean collidesWithTop = ballBottom > blockTop && ballTop < blockTop && xBall > blockLeft && xBall < blockRight;
+        boolean collidesWithBottom = ballTop < blockBottom && ballBottom > blockBottom && xBall > blockLeft && xBall < blockRight;
+
+        // Determine the side of the collision
+        if (collidesWithTop) {
             return HIT_TOP;
-        }
-
-        if (yBall >= y && yBall <= y + height && xBall == x + width) {
-            return HIT_RIGHT;
-        }
-
-        if (yBall >= y && yBall <= y + height && xBall == x) {
+        } else if (collidesWithBottom) {
+            return HIT_BOTTOM;
+        } else if (collidesWithLeft) {
             return HIT_LEFT;
+        } else if (collidesWithRight) {
+            return HIT_RIGHT;
         }
 
         return NO_HIT;

@@ -320,8 +320,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private boolean colideToLeftBlock           = false;
     private boolean colideToTopBlock            = false;
 
-    private double vX = 1.000;
-    private double vY = 1.000;
+    private double vX = 2.000;
+    private double vY = 2.000;
 
 
     private void resetColideFlags() {
@@ -666,7 +666,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
         if (yBall >= Block.getPaddingTop() && yBall <= (Block.getHeight() * (level + 1)) + Block.getPaddingTop()) {
             for (final Block block : blocks) {
-                int hitCode = block.checkHitToBlock(xBall, yBall);
+                int hitCode = block.checkHitToBlock(xBall, yBall, ballRadius);
                 if (hitCode != Block.NO_HIT) {
                     score += 1;
 
