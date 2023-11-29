@@ -343,6 +343,23 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         colideToTopBlock = false;
     }
 
+    private void resetBallAndBreakPosition() {
+        // Reset ball position
+        xBall = sceneWidth / 2.0;
+        yBall = yBreak - ballRadius - 10; // Place the ball just above the break
+
+        // Reset break position
+        xBreak = (sceneWidth - breakWidth) / 2.0;
+
+        // Update the position of the break and ball on the screen
+        Platform.runLater(() -> {
+            rect.setX(xBreak);
+            ball.setCenterX(xBall);
+            ball.setCenterY(yBall);
+        });
+    }
+
+
     private void setPhysicsToBall() {
         //v = ((time - hitTime) / 1000.000) + 1.000;
 
@@ -367,18 +384,17 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         if (yBall >= sceneHeigt) {
             goDownBall = false;
             if (!isGoldStauts) {
-                //TODO gameover
-                heart--;
+                heart--; // Decrement heart count
                 new Score().show(sceneWidth / 2, sceneHeigt / 2, -1, this);
-
                 if (heart == 0) {
-                    new Score().showGameOver(this);
+                    new Score().showGameOver(this); // Show game over only if hearts are zero
                     engine.stop();
+                } else {
+                    resetBallAndBreakPosition(); // Reset ball and break positions if hearts are still available
                 }
-
             }
-            //return;
         }
+
 
         if (yBall >= yBreak - ballRadius) {
             //System.out.println("Colide1");
