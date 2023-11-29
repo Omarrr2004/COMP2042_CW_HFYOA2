@@ -181,6 +181,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             engine.start();
             loadFromSave = false;
         }
+        newGame.setTranslateX((sceneWidth - newGame.getWidth()) / 2.0);
+        newGame.setTranslateY(sceneHeigt / 2.0);
 
 
     }
