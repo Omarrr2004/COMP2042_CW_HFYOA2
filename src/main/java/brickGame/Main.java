@@ -29,8 +29,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private double centerBreakX;
     private double yBreak = 640.0f;
 
-    private int breakWidth     = 130;
-    private int breakHeight    = 30;
+    private int breakWidth     = 160;
+    private int breakHeight    = 13;
     private int halfBreakWidth = breakWidth / 2;
 
     private int sceneWidth = 500;
