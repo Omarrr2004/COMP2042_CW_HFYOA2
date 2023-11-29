@@ -23,7 +23,7 @@ import java.util.Random;
 public class Main extends Application implements EventHandler<KeyEvent>, GameEngine.OnAction {
 
 
-    private int level = 0;
+    private int level = 1;
 
     private double xBreak = 0.0f;
     private double centerBreakX;
@@ -95,11 +95,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
 
-
-        if (loadFromSave == false) {
-            level++;
-            if (level >1){
-                new Score().showMessage("Level Up :)", this);
+        if (!loadFromSave) {
+            if (level == 1){
+                new Score().showMessage("Welcome!", this);
+            } else if (level > 1){
+                new Score().showMessage("Level " + level, this);
             }
             if (level == 18) {
                 new Score().showWin(this);
@@ -481,7 +481,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         if (destroyedBlockCount == blocks.size()) {
             //TODO win level todo...
             //System.out.println("You Win");
-
+            isLevelCompleted = true;
             nextLevel();
         }
     }
@@ -604,21 +604,26 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
     }
+    private boolean isLevelCompleted = false;
 
     private void nextLevel() {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    vX = 1.000;
+                    if (isLevelCompleted) {
+                        level++;  // Increment level here only if the level is completed
+                        System.out.println("Level incremented to: " + level);
+                        isLevelCompleted = false; // Reset the flag for the next level
+                    }
 
+                    vX = 1.000;
                     engine.stop();
                     resetColideFlags();
                     goDownBall = true;
 
                     isGoldStauts = false;
                     isExistHeartBlock = false;
-
 
                     hitTime = 0;
                     time = 0;
@@ -636,6 +641,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         });
     }
+
 
     public void restartGame() {
 

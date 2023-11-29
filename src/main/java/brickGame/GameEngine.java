@@ -5,7 +5,7 @@ import javafx.application.Platform;
 public class GameEngine {
 
     private OnAction onAction;
-    private int fps = 60;
+    private int fps = 100;
     private volatile boolean isRunning = true;
 
     public void setOnAction(OnAction onAction) {
