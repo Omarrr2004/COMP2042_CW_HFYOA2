@@ -249,16 +249,16 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             public void run() {
                 int sleepTime = 4;
                 for (int i = 0; i < 30; i++) {
-                    if (xBreak == (sceneWidth - breakWidth) && direction == RIGHT) {
-                        return;
-                    }
-                    if (xBreak == 0 && direction == LEFT) {
-                        return;
-                    }
                     if (direction == RIGHT) {
-                        xBreak++;
-                    } else {
-                        xBreak--;
+                        // Check if moving right would exceed the frame width
+                        if (xBreak + breakWidth < sceneWidth) {
+                            xBreak++;
+                        }
+                    } else if (direction == LEFT) {
+                        // Check if moving left would go below 0
+                        if (xBreak > 0) {
+                            xBreak--;
+                        }
                     }
                     centerBreakX = xBreak + halfBreakWidth;
                     try {
@@ -272,9 +272,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 }
             }
         }).start();
-
-
     }
+
 
 
     private void initBall() {
