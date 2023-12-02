@@ -207,6 +207,14 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                     }
                 } else if (r % 10 == 3) {
                     type = Block.BLOCK_STAR;
+                } else if (r % 10 == 4) {
+                    type = Block.BLOCK_BLOCK1;
+                } else if (r % 10 == 5) {
+                    type = Block.BLOCK_BLOCK2;
+                } else if (r % 10 == 6) {
+                    type = Block.BLOCK_BLOCK3;
+                } else if (r % 10 == 7) {
+                    type = Block.BLOCK_BLOCK4;
                 } else {
                     type = Block.BLOCK_NORMAL;
                 }

@@ -40,6 +40,12 @@ public class Block implements Serializable {
     public static int BLOCK_CHOCO = 100;
     public static int BLOCK_STAR = 101;
     public static int BLOCK_HEART = 102;
+    public static int BLOCK_BLOCK1 = 103;
+    public static int BLOCK_BLOCK2 = 104;
+    public static int BLOCK_BLOCK3 = 105;
+    public static int BLOCK_BLOCK4 = 106;
+    public static int BLOCK_BLOCK5 = 107;
+
 
 
     public Block(int row, int column, Color color, int type) {
@@ -67,6 +73,26 @@ public class Block implements Serializable {
             rect.setFill(pattern);
         } else if (type == BLOCK_HEART) {
             Image image = new Image("heart.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK1) {
+            Image image = new Image("block1.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK2) {
+            Image image = new Image("block2.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK3) {
+            Image image = new Image("block3.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK4) {
+            Image image = new Image("block4.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK5) {
+            Image image = new Image("block5.jpg");
             ImagePattern pattern = new ImagePattern(image);
             rect.setFill(pattern);
         } else if (type == BLOCK_STAR) {
