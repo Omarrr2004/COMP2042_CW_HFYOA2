@@ -15,6 +15,8 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import java.util.Arrays;
+
 
 import java.io.*;
 import java.util.ArrayList;
@@ -190,39 +192,45 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private void initBoard() {
         Random random = new Random();
 
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < level + 1; j++) {
-                // Remove the condition that skips block creation
-                int r = random.nextInt(500);
+        ArrayList<Integer> blockTypes = new ArrayList<>(Arrays.asList(
+                Block.BLOCK_BLOCK1, Block.BLOCK_BLOCK2, Block.BLOCK_BLOCK3,
+                Block.BLOCK_BLOCK4, Block.BLOCK_BLOCK5, Block.BLOCK_BLOCK6,
+                Block.BLOCK_BLOCK7, Block.BLOCK_BLOCK8, Block.BLOCK_BLOCK9,
+                Block.BLOCK_BLOCK10, Block.BLOCK_BLOCK11, Block.BLOCK_BLOCK12,
+                Block.BLOCK_BLOCK13, Block.BLOCK_BLOCK14, Block.BLOCK_CHOCO
+        ));
 
-                int type;
-                if (r % 10 == 1) {
-                    type = Block.BLOCK_CHOCO;
-                } else if (r % 10 == 2) {
-                    if (!isExistHeartBlock) {
-                        type = Block.BLOCK_HEART;
-                        isExistHeartBlock = true;
-                    } else {
-                        type = Block.BLOCK_NORMAL;
-                    }
-                } else if (r % 10 == 3) {
-                    type = Block.BLOCK_STAR;
-                } else if (r % 10 == 4) {
-                    type = Block.BLOCK_BLOCK1;
-                } else if (r % 10 == 5) {
-                    type = Block.BLOCK_BLOCK2;
-                } else if (r % 10 == 6) {
-                    type = Block.BLOCK_BLOCK3;
-                } else if (r % 10 == 7) {
-                    type = Block.BLOCK_BLOCK4;
-                } else {
-                    type = Block.BLOCK_NORMAL;
-                }
+        // Total number of blocks in a level
+        int totalBlocks = 4 * (level + 1);
 
-                blocks.add(new Block(j, i, colors[r % (colors.length)], type));
+        // Creating a list to keep track of all positions
+        ArrayList<Integer> positions = new ArrayList<>();
+        for (int i = 0; i < totalBlocks; i++) {
+            positions.add(i);
+        }
+
+        // Randomly select positions for star and heart blocks
+        int firstStarPos = positions.remove(random.nextInt(positions.size()));
+        int secondStarPos = positions.remove(random.nextInt(positions.size()));
+        Integer heartPos = level > 5 ? positions.remove(random.nextInt(positions.size())) : null;
+
+        for (int i = 0; i < totalBlocks; i++) {
+            int type;
+            if (i == firstStarPos || i == secondStarPos) {
+                type = Block.BLOCK_STAR;
+            } else if (heartPos != null && i == heartPos) {
+                type = Block.BLOCK_HEART;
+            } else {
+                int typeIndex = random.nextInt(blockTypes.size());
+                type = blockTypes.get(typeIndex);
             }
+
+            int row = i / (level + 1);
+            int column = i % (level + 1);
+            blocks.add(new Block(column, row, type));
         }
     }
+
 
 
 
@@ -599,7 +607,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
         for (BlockSerializable ser : loadSave.blocks) {
             int r = new Random().nextInt(200);
-            blocks.add(new Block(ser.row, ser.j, colors[r % colors.length], ser.type));
+            blocks.add(new Block(ser.row, ser.j, ser.type));
         }
 
 

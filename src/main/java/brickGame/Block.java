@@ -9,7 +9,7 @@ import javafx.scene.shape.Rectangle;
 import java.io.Serializable;
 
 public class Block implements Serializable {
-    private static Block block = new Block(-1, -1, Color.TRANSPARENT, 99);
+    private static Block block = new Block(-1, -1, 99);
 
     public int row;
     public int column;
@@ -45,13 +45,21 @@ public class Block implements Serializable {
     public static int BLOCK_BLOCK3 = 105;
     public static int BLOCK_BLOCK4 = 106;
     public static int BLOCK_BLOCK5 = 107;
+    public static int BLOCK_BLOCK6 = 108;
+    public static int BLOCK_BLOCK7 = 109;
+    public static int BLOCK_BLOCK8 = 110;
+    public static int BLOCK_BLOCK9 = 111;
+    public static int BLOCK_BLOCK10 = 112;
+    public static int BLOCK_BLOCK11 = 113;
+    public static int BLOCK_BLOCK12 = 114;
+    public static int BLOCK_BLOCK13 = 115;
+    public static int BLOCK_BLOCK14 = 116;
 
 
 
-    public Block(int row, int column, Color color, int type) {
+    public Block(int row, int column, int type) {
         this.row = row;
         this.column = column;
-        this.color = color;
         this.type = type;
 
         draw();
@@ -93,6 +101,42 @@ public class Block implements Serializable {
             rect.setFill(pattern);
         } else if (type == BLOCK_BLOCK5) {
             Image image = new Image("block5.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK6) {
+            Image image = new Image("block6.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK7) {
+            Image image = new Image("block7.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK8) {
+            Image image = new Image("block8.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK9) {
+            Image image = new Image("block9.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK10) {
+            Image image = new Image("block10.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK11) {
+            Image image = new Image("block11.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK12) {
+            Image image = new Image("block12.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK13) {
+            Image image = new Image("block13.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK14) {
+            Image image = new Image("block14.jpg");
             ImagePattern pattern = new ImagePattern(image);
             rect.setFill(pattern);
         } else if (type == BLOCK_STAR) {
