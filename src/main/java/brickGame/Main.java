@@ -29,7 +29,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     private double xBreak = 0.0f;
     private double centerBreakX;
-    private double yBreak = 640.0f;
+    private double yBreak = 680.0f;
 
     private int breakWidth     = 160;
     private int breakHeight    = 13;
@@ -45,11 +45,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private double xBall;
     private double yBall;
 
-    private boolean isGoldStauts      = false;
+    private boolean isGoldStatus = false;
     private boolean isExistHeartBlock = false;
 
     private Rectangle rect;
-    private int       ballRadius = 13;
+    private int  ballRadius = 13;
 
     private int destroyedBlockCount = 0;
 
@@ -317,6 +317,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         rect = new Rectangle();
         rect.setWidth(breakWidth);
         rect.setHeight(breakHeight);
+        rect.setArcWidth(10);
+        rect.setArcHeight(10);
 
         // Center the playing block at the beginning of each level
         xBreak = (sceneWidth - breakWidth) / 2.0;
@@ -398,7 +400,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
         if (yBall >= sceneHeigt) {
             goDownBall = false;
-            if (!isGoldStauts) {
+            if (!isGoldStatus) {
                 heart--; // Decrement heart count
                 new Score().show(sceneWidth / 2, sceneHeigt / 2, -1, this);
                 if (heart == 0) {
@@ -529,7 +531,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
                     outputStream.writeBoolean(isExistHeartBlock);
-                    outputStream.writeBoolean(isGoldStauts);
+                    outputStream.writeBoolean(isGoldStatus);
                     outputStream.writeBoolean(goDownBall);
                     outputStream.writeBoolean(goRightBall);
                     outputStream.writeBoolean(colideToBreak);
@@ -578,7 +580,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
         isExistHeartBlock = loadSave.isExistHeartBlock;
-        isGoldStauts = loadSave.isGoldStauts;
+        isGoldStatus = loadSave.isGoldStauts;
         goDownBall = loadSave.goDownBall;
         goRightBall = loadSave.goRightBall;
         colideToBreak = loadSave.colideToBreak;
@@ -638,7 +640,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                     resetColideFlags();
                     goDownBall = true;
 
-                    isGoldStauts = false;
+                    isGoldStatus = false;
                     isExistHeartBlock = false;
 
                     hitTime = 0;
@@ -670,7 +672,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             resetColideFlags();
             goDownBall = true;
 
-            isGoldStauts = false;
+            isGoldStatus = false;
             isExistHeartBlock = false;
             hitTime = 0;
             time = 0;
@@ -738,13 +740,16 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                         ball.setFill(new ImagePattern(new Image("goldball.png")));
                         System.out.println("gold ball");
                         root.getStyleClass().add("goldRoot");
-                        isGoldStauts = true;
+                        isGoldStatus = true;
                     }
 
                     if (block.type == Block.BLOCK_HEART) {
                         heart++;
                     }
+                    if(isGoldStatus){
 
+                    }
+                    else{
                     if (hitCode == Block.HIT_RIGHT) {
                         colideToRightBlock = true;
                     } else if (hitCode == Block.HIT_BOTTOM) {
@@ -759,7 +764,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
                 //TODO hit to break and some work here....
                 //System.out.println("Break in row:" + block.row + " and column:" + block.column + " hit");
-            }
+            }}
         }
     }
 
@@ -774,10 +779,10 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         checkDestroyedCount();
         setPhysicsToBall();
 
-        if (time - goldTime > 5000) {
+        if (time - goldTime > 2500) {
             ball.setFill(new ImagePattern(new Image("ball.png")));
             root.getStyleClass().remove("goldRoot");
-            isGoldStauts = false;
+            isGoldStatus = false;
         }
 
         for (Bonus choco : chocos) {

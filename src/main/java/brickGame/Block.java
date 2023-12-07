@@ -72,6 +72,8 @@ public class Block implements Serializable {
         rect = new Rectangle();
         rect.setWidth(width);
         rect.setHeight(height);
+        rect.setArcHeight(5);
+        rect.setArcWidth(5);
         rect.setX(x);
         rect.setY(y);
 
