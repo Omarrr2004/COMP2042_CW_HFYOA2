@@ -209,14 +209,21 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             positions.add(i);
         }
 
-        // Randomly select positions for star and heart blocks
-        int firstStarPos = positions.remove(random.nextInt(positions.size()));
-        int secondStarPos = positions.remove(random.nextInt(positions.size()));
+        // Define the number of star blocks based on the level
+        int numberOfStarBlocks = level <= 6 ? 1 : 2;
+
+        // Store the positions for star blocks
+        ArrayList<Integer> starPositions = new ArrayList<>();
+        for (int i = 0; i < numberOfStarBlocks; i++) {
+            starPositions.add(positions.remove(random.nextInt(positions.size())));
+        }
+
+        // Randomly select a position for the heart block if level is greater than 5
         Integer heartPos = level > 5 ? positions.remove(random.nextInt(positions.size())) : null;
 
         for (int i = 0; i < totalBlocks; i++) {
             int type;
-            if (i == firstStarPos || i == secondStarPos) {
+            if (starPositions.contains(i)) {
                 type = Block.BLOCK_STAR;
             } else if (heartPos != null && i == heartPos) {
                 type = Block.BLOCK_HEART;
@@ -230,6 +237,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             blocks.add(new Block(column, row, type));
         }
     }
+
 
 
 
