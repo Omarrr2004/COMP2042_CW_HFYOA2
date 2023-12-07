@@ -16,6 +16,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import java.util.Arrays;
+import javafx.application.Platform;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 import java.io.*;
@@ -44,6 +46,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private Circle ball;
     private double xBall;
     private double yBall;
+    private Rectangle paddle;
 
     private boolean isGoldStatus = false;
     private boolean isExistHeartBlock = false;
@@ -62,6 +65,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private long goldTime = 0;
 
     private GameEngine engine;
+    private AtomicBoolean isWidthIncreased = new AtomicBoolean(false);
     public static String savePath    = "D:/save/save.mdds";
     public static String savePathDir = "D:/save/";
 
@@ -120,7 +124,9 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             newGame.setTranslateY(340);
 
         }
-
+        paddle = new Rectangle(); // Initialize paddle
+        paddle.setWidth(breakWidth); // Set initial width
+        paddle.setHeight(breakHeight);
 
         root = new Pane();
         scoreLabel = new Label("Score: " + score);
@@ -274,17 +280,15 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 int sleepTime = 4;
                 for (int i = 0; i < 30; i++) {
                     if (direction == RIGHT) {
-                        // Check if moving right would exceed the frame width
-                        if (xBreak + breakWidth < sceneWidth) {
+                        if (xBreak + rect.getWidth() < sceneWidth) { // Use rect.getWidth()
                             xBreak++;
                         }
                     } else if (direction == LEFT) {
-                        // Check if moving left would go below 0
                         if (xBreak > 0) {
                             xBreak--;
                         }
                     }
-                    centerBreakX = xBreak + halfBreakWidth;
+                    centerBreakX = xBreak + rect.getWidth() / 2; // Use rect.getWidth()
                     try {
                         Thread.sleep(sleepTime);
                     } catch (InterruptedException e) {
@@ -297,6 +301,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         }).start();
     }
+
 
 
 
@@ -423,7 +428,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
         if (yBall >= yBreak - ballRadius) {
             //System.out.println("Colide1");
-            if (xBall >= xBreak && xBall <= xBreak + breakWidth) {
+            if (xBall >= xBreak && xBall <= xBreak + rect.getWidth()) {
                 hitTime = time;
                 resetColideFlags();
                 colideToBreak = true;
@@ -695,7 +700,44 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
+    private void increasePaddleWidth() {
+        Platform.runLater(() -> {
+            if (!isWidthIncreased.getAndSet(true)) {
+                double originalWidth = rect.getWidth();
+                double increasedWidth = originalWidth * 1.25; // Increase by 25%
+                double newX = xBreak;
+                if (newX + increasedWidth > sceneWidth) {
+                    newX = sceneWidth - increasedWidth;
+                } else if (newX < 0) {
+                    newX = 0;
+                }
 
+                xBreak = newX;
+                rect.setWidth(increasedWidth);
+
+                // Reset the paddle width after 8 seconds
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(8000); // Wait for 8 seconds
+                        Platform.runLater(this::resetPaddleWidth);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
+        });
+    }
+
+    private void resetPaddleWidth() {
+        Platform.runLater(() -> {
+            double originalWidth = 160;
+            rect.setWidth(originalWidth);
+            if (xBreak + originalWidth > sceneWidth) {
+                xBreak = sceneWidth - originalWidth;
+            }
+            isWidthIncreased.set(false);
+        });
+    }
     @Override
     public void onUpdate() {
         Platform.runLater(new Runnable() {
@@ -716,6 +758,15 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         });
 
+        for (Block block : blocks) {
+            int hitCode = block.checkHitToBlock(xBall, yBall, ballRadius);
+            if (hitCode != Block.NO_HIT && !block.isDestroyed) {
+                // Check if the block hit is BLOCK_BLOCK1
+                if (block.type == Block.BLOCK_BLOCK1) {
+                    increasePaddleWidth();
+                }
+            }
+        }
 
         if (yBall >= Block.getPaddingTop() && yBall <= (Block.getHeight() * (level + 1)) + Block.getPaddingTop()) {
             for (final Block block : blocks) {
