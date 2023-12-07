@@ -16,8 +16,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import java.util.Arrays;
-import javafx.application.Platform;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 
 import java.io.*;
@@ -65,27 +65,15 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private long goldTime = 0;
 
     private GameEngine engine;
-    private AtomicBoolean isWidthIncreased = new AtomicBoolean(false);
+    private long lastWidthChangeTime = 0;
+
+    private PaddleState paddleState = PaddleState.NORMAL;
     public static String savePath    = "D:/save/save.mdds";
     public static String savePathDir = "D:/save/";
 
     private ArrayList<Block> blocks = new ArrayList<Block>();
     private ArrayList<Bonus> chocos = new ArrayList<Bonus>();
-    private Color[]          colors = new Color[]{
-            Color.MAGENTA,
-            Color.RED,
-            Color.GOLD,
-            Color.CORAL,
-            Color.AQUA,
-            Color.VIOLET,
-            Color.GREENYELLOW,
-            Color.ORANGE,
-            Color.PINK,
-            Color.SLATEGREY,
-            Color.YELLOW,
-            Color.TOMATO,
-            Color.TAN,
-    };
+
     public  Pane             root;
     private Label            scoreLabel;
     private Label            heartLabel;
@@ -700,44 +688,61 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
-    private void increasePaddleWidth() {
+    private enum PaddleState {
+        NORMAL, INCREASED, DECREASED
+    }
+    private void changePaddleWidth(boolean increase) {
         Platform.runLater(() -> {
-            if (!isWidthIncreased.getAndSet(true)) {
-                double originalWidth = rect.getWidth();
-                double increasedWidth = originalWidth * 1.25; // Increase by 25%
-                double newX = xBreak;
-                if (newX + increasedWidth > sceneWidth) {
-                    newX = sceneWidth - increasedWidth;
-                } else if (newX < 0) {
-                    newX = 0;
-                }
-
-                xBreak = newX;
-                rect.setWidth(increasedWidth);
-
-                // Reset the paddle width after 8 seconds
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(8000); // Wait for 8 seconds
-                        Platform.runLater(this::resetPaddleWidth);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastWidthChangeTime >= 8000) { // 8 seconds
+                if ((increase && paddleState != PaddleState.INCREASED) || (!increase && paddleState != PaddleState.DECREASED)) {
+                    double originalWidth = rect.getWidth();
+                    double newWidth = increase ? originalWidth * 1.25 : originalWidth * 0.75;
+                    double newX = xBreak;
+                    if (newX + newWidth > sceneWidth) {
+                        newX = sceneWidth - newWidth;
+                    } else if (newX < 0) {
+                        newX = 0;
                     }
-                }).start();
+
+                    xBreak = newX;
+                    rect.setWidth(newWidth);
+                    paddleState = increase ? PaddleState.INCREASED : PaddleState.DECREASED;
+
+                    lastWidthChangeTime = currentTime; // Update the timestamp
+                    resetPaddleWidthAfterDelay();
+                }
             }
         });
     }
 
-    private void resetPaddleWidth() {
-        Platform.runLater(() -> {
-            double originalWidth = 160;
-            rect.setWidth(originalWidth);
-            if (xBreak + originalWidth > sceneWidth) {
-                xBreak = sceneWidth - originalWidth;
+
+    private void resetPaddleWidthAfterDelay() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(8000); // Wait for 8 seconds
+                Platform.runLater(this::resetPaddleWidthToDefault);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            isWidthIncreased.set(false);
+        }).start();
+    }
+
+
+    private void resetPaddleWidthToDefault() {
+        Platform.runLater(() -> {
+            if (paddleState != PaddleState.NORMAL) {
+                rect.setWidth(breakWidth);
+                if (xBreak + breakWidth > sceneWidth) {
+                    xBreak = sceneWidth - breakWidth;
+                }
+                paddleState = PaddleState.NORMAL;
+            }
         });
     }
+
+
+
     @Override
     public void onUpdate() {
         Platform.runLater(new Runnable() {
@@ -757,16 +762,21 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 }
             }
         });
-
         for (Block block : blocks) {
             int hitCode = block.checkHitToBlock(xBall, yBall, ballRadius);
             if (hitCode != Block.NO_HIT && !block.isDestroyed) {
                 // Check if the block hit is BLOCK_BLOCK1
                 if (block.type == Block.BLOCK_BLOCK1) {
-                    increasePaddleWidth();
+                    changePaddleWidth(true); // for increasing paddle width
+                }
+                // Check if the block hit is BLOCK_BLOCK2
+                else if (block.type == Block.BLOCK_BLOCK2) {
+                    changePaddleWidth(false); // for decreasing paddle width
                 }
             }
         }
+
+
 
         if (yBall >= Block.getPaddingTop() && yBall <= (Block.getHeight() * (level + 1)) + Block.getPaddingTop()) {
             for (final Block block : blocks) {
