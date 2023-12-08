@@ -15,9 +15,13 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import java.util.Arrays;
+import javafx.scene.image.ImageView;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundSize;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -91,18 +95,42 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
         // Menu Pane
         Pane menuPane = new Pane();
-        Button startNewGameButton = new Button("Start New Game");
-        Button loadGameButton = new Button("Load Game");
 
-        double buttonWidth = 105;
-        double startX = (sceneWidth - buttonWidth) / 2;
-        double startY = 300;
+        ImageView newGameIcon = new ImageView(new Image("startnewgame.jpg")); // Replace with your icon path
+        newGameIcon.setFitHeight(40); // Set the height of the icon
+        newGameIcon.setFitWidth(160);  // Set the width of the icon
+
+        Button startNewGameButton = new Button();
+        startNewGameButton.setGraphic(newGameIcon); // Set the icon as graphic
+        startNewGameButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
+
+        // Create the load game button with custom icon
+        ImageView loadGameIcon = new ImageView(new Image("loadgame.png")); // Replace with your icon path
+        loadGameIcon.setFitHeight(40); // Set the height of the icon
+        loadGameIcon.setFitWidth(160);  // Set the width of the icon
+
+        Button loadGameButton = new Button();
+        loadGameButton.setGraphic(loadGameIcon); // Set the icon as graphic
+        loadGameButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
+
+        Image backgroundImage = new Image("bg.jpeg"); // Replace with your image path
+        BackgroundImage background = new BackgroundImage(backgroundImage,
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false));
+
+        // Set the background on the pane
+        menuPane.setBackground(new Background(background));
+
+
+        double startX = 25;
+        double startY =275;
 
         // Position the buttons
         startNewGameButton.setLayoutX(startX);
         startNewGameButton.setLayoutY(startY);
-        loadGameButton.setLayoutX(startX + 13);
-        loadGameButton.setLayoutY(startY + 40);
+        loadGameButton.setLayoutX(startX);
+        loadGameButton.setLayoutY(startY + 50);
 
         // Add buttons to menu
         menuPane.getChildren().addAll(startNewGameButton, loadGameButton);
