@@ -10,11 +10,10 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -85,103 +84,135 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     Button load    = null;
     Button newGame = null;
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
 
-        if (!loadFromSave) {
-            if (level == 1){
-                new Score().showMessage("Welcome!", this);
-            } else if (level > 1){
-                new Score().showMessage("Level " + level, this);
-            }
-            if (level == 18) {
-                new Score().showWin(this);
-                return;
-            }
+        // Menu Pane
+        Pane menuPane = new Pane();
+        Button startNewGameButton = new Button("Start New Game");
+        Button loadGameButton = new Button("Load Game");
 
-            initBall();
-            initBreak();
-            initBoard();
+        double buttonWidth = 105;
+        double startX = (sceneWidth - buttonWidth) / 2;
+        double startY = 300;
 
-            load = new Button("Load Game");
-            newGame = new Button("Start New Game");
-            load.setTranslateX(220);
-            load.setTranslateY(300);
-            newGame.setTranslateX(220);
-            newGame.setTranslateY(340);
+        // Position the buttons
+        startNewGameButton.setLayoutX(startX);
+        startNewGameButton.setLayoutY(startY);
+        loadGameButton.setLayoutX(startX + 13);
+        loadGameButton.setLayoutY(startY + 40);
 
+        // Add buttons to menu
+        menuPane.getChildren().addAll(startNewGameButton, loadGameButton);
+
+        // Create menu scene
+        Scene menuScene = new Scene(menuPane, sceneWidth, sceneHeigt);
+
+        // Actions for buttons
+        startNewGameButton.setOnAction(e -> startNewGame());
+        loadGameButton.setOnAction(e -> loadGame());
+
+        // Show menu
+        primaryStage.setScene(menuScene);
+        primaryStage.setTitle("Game Menu");
+        primaryStage.show();
+    }
+
+    private void startNewGame() {
+        // Resetting game state for a new game
+        level = 1;
+        score = 0;
+        heart = 3;
+        destroyedBlockCount = 0;
+        isGoldStatus = false;
+        isExistHeartBlock = false;
+        loadFromSave = false;
+
+        // Initialize game components
+        initBall();
+        initBreak();
+        initBoard();
+
+        // Set up the game scene
+        setupGameScene();
+    }
+
+    private void loadGame() {
+        LoadSave loadSave = new LoadSave();
+        loadSave.read();
+
+        // Set game state based on loaded data
+        isExistHeartBlock = loadSave.isExistHeartBlock;
+        isGoldStatus = loadSave.isGoldStauts;
+        goDownBall = loadSave.goDownBall;
+        goRightBall = loadSave.goRightBall;
+        colideToBreak = loadSave.colideToBreak;
+        colideToBreakAndMoveToRight = loadSave.colideToBreakAndMoveToRight;
+        colideToRightWall = loadSave.colideToRightWall;
+        colideToLeftWall = loadSave.colideToLeftWall;
+        colideToRightBlock = loadSave.colideToRightBlock;
+        colideToBottomBlock = loadSave.colideToBottomBlock;
+        colideToLeftBlock = loadSave.colideToLeftBlock;
+        colideToTopBlock = loadSave.colideToTopBlock;
+        level = loadSave.level;
+        score = loadSave.score;
+        heart = loadSave.heart;
+        destroyedBlockCount = loadSave.destroyedBlockCount;
+        xBall = loadSave.xBall;
+        yBall = loadSave.yBall;
+        xBreak = loadSave.xBreak;
+        yBreak = loadSave.yBreak;
+        centerBreakX = loadSave.centerBreakX;
+        time = loadSave.time;
+        goldTime = loadSave.goldTime;
+        vX = loadSave.vX;
+
+        // Clear and reload blocks
+        blocks.clear();
+        chocos.clear();
+        for (BlockSerializable ser : loadSave.blocks) {
+            blocks.add(new Block(ser.row, ser.column, ser.type));
         }
-        paddle = new Rectangle(); // Initialize paddle
-        paddle.setWidth(breakWidth); // Set initial width
-        paddle.setHeight(breakHeight);
 
+        // Set up the game scene with loaded data
+        setupGameScene();
+    }
+
+
+    private void setupGameScene() {
         root = new Pane();
         scoreLabel = new Label("Score: " + score);
+        heartLabel = new Label("Heart: " + heart);
         levelLabel = new Label("Level: " + level);
-        levelLabel.setTranslateY(20);
-        heartLabel = new Label("Heart : " + heart);
+
+        // Position labels
         heartLabel.setTranslateX(sceneWidth - 70);
-        if (loadFromSave == false) {
-            root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel, newGame);
-        } else {
-            root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel);
-        }
+        levelLabel.setTranslateY(20);
+
+        root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel);
         for (Block block : blocks) {
             root.getChildren().add(block.rect);
         }
+
         Scene scene = new Scene(root, sceneWidth, sceneHeigt);
         scene.getStylesheets().add("style.css");
         scene.setOnKeyPressed(this);
 
-        primaryStage.setTitle("Game");
+        // Configure and show the primary stage
+        primaryStage.setTitle("Brick Game");
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        if (loadFromSave == false) {
-            if (level > 1 && level < 18) {
-                load.setVisible(false);
-                newGame.setVisible(false);
-                engine = new GameEngine();
-                engine.setOnAction(this);
-                engine.setFps(120);
-                engine.start();
-            }
-
-            load.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    loadGame();
-
-                    load.setVisible(false);
-                    newGame.setVisible(false);
-                }
-            });
-
-            newGame.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    engine = new GameEngine();
-                    engine.setOnAction(Main.this);
-                    engine.setFps(120);
-                    engine.start();
-
-                    load.setVisible(false);
-                    newGame.setVisible(false);
-                }
-            });
-        } else {
-            engine = new GameEngine();
-            engine.setOnAction(this);
-            engine.setFps(120);
-            engine.start();
-            loadFromSave = false;
-        }
-        newGame.setTranslateX((sceneWidth - newGame.getWidth()) / 2.0);
-        newGame.setTranslateY(sceneHeigt / 2.0);
-
-
+        // Start the game engine
+        engine = new GameEngine();
+        engine.setOnAction(this);
+        engine.setFps(120);
+        engine.start();
     }
+
+
 
     private void initBoard() {
         Random random = new Random();
@@ -581,56 +612,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }).start();
 
     }
-
-    private void loadGame() {
-
-        LoadSave loadSave = new LoadSave();
-        loadSave.read();
-
-
-        isExistHeartBlock = loadSave.isExistHeartBlock;
-        isGoldStatus = loadSave.isGoldStauts;
-        goDownBall = loadSave.goDownBall;
-        goRightBall = loadSave.goRightBall;
-        colideToBreak = loadSave.colideToBreak;
-        colideToBreakAndMoveToRight = loadSave.colideToBreakAndMoveToRight;
-        colideToRightWall = loadSave.colideToRightWall;
-        colideToLeftWall = loadSave.colideToLeftWall;
-        colideToRightBlock = loadSave.colideToRightBlock;
-        colideToBottomBlock = loadSave.colideToBottomBlock;
-        colideToLeftBlock = loadSave.colideToLeftBlock;
-        colideToTopBlock = loadSave.colideToTopBlock;
-        level = loadSave.level;
-        score = loadSave.score;
-        heart = loadSave.heart;
-        destroyedBlockCount = loadSave.destroyedBlockCount;
-        xBall = loadSave.xBall;
-        yBall = loadSave.yBall;
-        xBreak = loadSave.xBreak;
-        yBreak = loadSave.yBreak;
-        centerBreakX = loadSave.centerBreakX;
-        time = loadSave.time;
-        goldTime = loadSave.goldTime;
-        vX = loadSave.vX;
-
-        blocks.clear();
-        chocos.clear();
-
-        for (BlockSerializable ser : loadSave.blocks) {
-            int r = new Random().nextInt(200);
-            blocks.add(new Block(ser.row, ser.j, ser.type));
-        }
-
-
-        try {
-            loadFromSave = true;
-            start(primaryStage);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-    }
     private boolean isLevelCompleted = false;
 
     private void nextLevel() {
@@ -642,31 +623,49 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                         level++;  // Increment level here only if the level is completed
                         System.out.println("Level incremented to: " + level);
                         isLevelCompleted = false; // Reset the flag for the next level
+
+                        // Reset game state for the new level
+                        vX = 1.000;
+                        resetColideFlags();
+                        goDownBall = true;
+
+                        isGoldStatus = false;
+                        isExistHeartBlock = false;
+
+                        hitTime = 0;
+                        time = 0;
+                        goldTime = 0;
+
+                        // Clear old blocks, and initialize new ones
+                        blocks.clear();
+                        chocos.clear();
+                        destroyedBlockCount = 0;
+                        initBall();
+                        initBreak();
+                        initBoard();
+
+                        // Update the game scene for the next level
+                        updateGameScene();
                     }
-
-                    vX = 1.000;
-                    engine.stop();
-                    resetColideFlags();
-                    goDownBall = true;
-
-                    isGoldStatus = false;
-                    isExistHeartBlock = false;
-
-                    hitTime = 0;
-                    time = 0;
-                    goldTime = 0;
-
-                    engine.stop();
-                    blocks.clear();
-                    chocos.clear();
-                    destroyedBlockCount = 0;
-                    start(primaryStage);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+    private void updateGameScene() {
+
+        root.getChildren().clear();
+        root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel);
+        for (Block block : blocks) {
+            root.getChildren().add(block.rect);
+        }
+
+        // Update labels
+        scoreLabel.setText("Score: " + score);
+        heartLabel.setText("Heart: " + heart);
+        levelLabel.setText("Level: " + level);
     }
 
 
