@@ -187,11 +187,10 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         Random random = new Random();
 
         ArrayList<Integer> blockTypes = new ArrayList<>(Arrays.asList(
-                Block.BLOCK_BLOCK1, Block.BLOCK_BLOCK2, Block.BLOCK_BLOCK3,
-                Block.BLOCK_BLOCK4, Block.BLOCK_BLOCK5, Block.BLOCK_BLOCK6,
-                Block.BLOCK_BLOCK7, Block.BLOCK_BLOCK8, Block.BLOCK_BLOCK9,
-                Block.BLOCK_BLOCK10, Block.BLOCK_BLOCK11, Block.BLOCK_BLOCK12,
-                Block.BLOCK_BLOCK13, Block.BLOCK_BLOCK14, Block.BLOCK_CHOCO
+                Block.BLOCK_BLOCK3, Block.BLOCK_BLOCK4, Block.BLOCK_BLOCK5, Block.BLOCK_BLOCK6,
+                Block.BLOCK_BLOCK7, Block.BLOCK_BLOCK8, Block.BLOCK_BLOCK9, Block.BLOCK_BLOCK10,
+                Block.BLOCK_BLOCK11, Block.BLOCK_BLOCK12, Block.BLOCK_BLOCK13, Block.BLOCK_BLOCK14,
+                Block.BLOCK_BLOCK15, Block.BLOCK_BLOCK16, Block.BLOCK_CHOCO
         ));
 
         // Total number of blocks in a level
@@ -215,12 +214,20 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         // Randomly select a position for the heart block if level is greater than 5
         Integer heartPos = level > 5 ? positions.remove(random.nextInt(positions.size())) : null;
 
+        // Block 1 and Block 2 positions
+        Integer block1Pos = level >= 9 ? positions.remove(random.nextInt(positions.size())) : null;
+        Integer block2Pos = level >= 4 ? positions.remove(random.nextInt(positions.size())) : null;
+
         for (int i = 0; i < totalBlocks; i++) {
             int type;
             if (starPositions.contains(i)) {
                 type = Block.BLOCK_STAR;
             } else if (heartPos != null && i == heartPos) {
                 type = Block.BLOCK_HEART;
+            } else if (block1Pos != null && i == block1Pos) {
+                type = Block.BLOCK_BLOCK1; // Block 1 for level 9 and above
+            } else if (block2Pos != null && i == block2Pos) {
+                type = Block.BLOCK_BLOCK2; // Block 2 for level 4 and above
             } else {
                 int typeIndex = random.nextInt(blockTypes.size());
                 type = blockTypes.get(typeIndex);
@@ -231,6 +238,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             blocks.add(new Block(column, row, type));
         }
     }
+
 
 
 
@@ -694,7 +702,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private void changePaddleWidth(boolean increase) {
         Platform.runLater(() -> {
             long currentTime = System.currentTimeMillis();
-            if (currentTime - lastWidthChangeTime >= 8000) { // 8 seconds
+            if (currentTime - lastWidthChangeTime >= 9000) { // 9 seconds
                 if ((increase && paddleState != PaddleState.INCREASED) || (!increase && paddleState != PaddleState.DECREASED)) {
                     double originalWidth = rect.getWidth();
                     double newWidth = increase ? originalWidth * 1.25 : originalWidth * 0.75;
@@ -720,7 +728,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private void resetPaddleWidthAfterDelay() {
         new Thread(() -> {
             try {
-                Thread.sleep(8000); // Wait for 8 seconds
+                Thread.sleep(9000); // Wait for 9 seconds
                 Platform.runLater(this::resetPaddleWidthToDefault);
             } catch (InterruptedException e) {
                 e.printStackTrace();

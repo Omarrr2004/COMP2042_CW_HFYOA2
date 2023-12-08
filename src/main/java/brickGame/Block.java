@@ -53,6 +53,8 @@ public class Block implements Serializable {
     public static int BLOCK_BLOCK12 = 114;
     public static int BLOCK_BLOCK13 = 115;
     public static int BLOCK_BLOCK14 = 116;
+    public static int BLOCK_BLOCK15 = 117;
+    public static int BLOCK_BLOCK16 = 118;
 
 
 
@@ -138,6 +140,14 @@ public class Block implements Serializable {
             rect.setFill(pattern);
         } else if (type == BLOCK_BLOCK14) {
             Image image = new Image("block14.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK15) {
+            Image image = new Image("block15.jpg");
+            ImagePattern pattern = new ImagePattern(image);
+            rect.setFill(pattern);
+        } else if (type == BLOCK_BLOCK16) {
+            Image image = new Image("block16.jpg");
             ImagePattern pattern = new ImagePattern(image);
             rect.setFill(pattern);
         } else if (type == BLOCK_STAR) {
