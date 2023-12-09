@@ -309,13 +309,26 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             case DOWN:
                 //setPhysicsToBall();
                 break;
+            case P:
+                pauseGame();
+                break;
             case S:
                 saveGame();
                 break;
         }
     }
 
-    float oldXBreak;
+    private boolean isPaused;
+
+    private void pauseGame(){
+        isPaused = !isPaused;
+        if(isPaused){
+            new Score().showMessage("Paused",this);
+            engine.stop();
+        } else {
+            engine.start();
+        }
+    }
 
     private void move(final int direction) {
         new Thread(new Runnable() {
