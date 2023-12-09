@@ -2,7 +2,6 @@ package brickGame;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -22,7 +21,6 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundSize;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -552,16 +550,37 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
     }
+    public void showWin(final Main main) {
+        Platform.runLater(() -> {
+
+            Image image = new Image("youwin.png");
+            ImageView imageView = new ImageView(image);
+
+            imageView.setTranslateX(100);
+            imageView.setTranslateY(250);
+            imageView.setFitWidth(300);
+            imageView.setFitHeight(300);
+            imageView.setPreserveRatio(true);
+
+            main.root.getChildren().addAll(imageView);
+
+            engine.stop();
+        });
+    }
 
 
     private void checkDestroyedCount() {
         if (destroyedBlockCount == blocks.size()) {
-            //TODO win level todo...
-            //System.out.println("You Win");
-            isLevelCompleted = true;
-            nextLevel();
+            if (level == 18) {
+                showWin(this);
+                engine.stop();
+            } else {
+                isLevelCompleted = true;
+                nextLevel();
+            }
         }
     }
+
 
     private void saveGame() {
         new Thread(new Runnable() {

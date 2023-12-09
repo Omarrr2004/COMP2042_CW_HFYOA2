@@ -84,16 +84,4 @@ public class Score {
             main.root.getChildren().addAll(gameOverImage, restartIcon);
         });
     }
-
-    public void showWin(final Main main) {
-        Platform.runLater(() -> {
-            Label label = new Label("You Win :)");
-            label.setTranslateX(200);
-            label.setTranslateY(250);
-            label.setScaleX(2);
-            label.setScaleY(2);
-
-            main.root.getChildren().addAll(label);
-        });
-    }
 }
