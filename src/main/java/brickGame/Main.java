@@ -29,38 +29,25 @@ import java.util.Random;
 
 public class Main extends Application implements EventHandler<KeyEvent>, GameEngine.OnAction {
 
-
     private int level = 1;
-
     private double xBreak = 0.0f;
     private double centerBreakX;
     private double yBreak = 680.0f;
-
     private int breakWidth     = 160;
     private int breakHeight    = 13;
     private int halfBreakWidth = breakWidth / 2;
-
     private int sceneWidth = 500;
     private int sceneHeigt = 700;
-
     private static int LEFT  = 1;
     private static int RIGHT = 2;
-
     private Circle ball;
     private double xBall;
     private double yBall;
-    private Rectangle paddle;
-
     private boolean isGoldStatus = false;
     private boolean isExistHeartBlock = false;
-
     private Rectangle rect;
     private int  ballRadius = 13;
-
     private int destroyedBlockCount = 0;
-
-    private double v = 1.000;
-
     private int  heart    = 3;
     private int  score    = 0;
     private long time     = 0;
@@ -96,7 +83,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         // Menu Pane
         Pane menuPane = new Pane();
 
-        ImageView newGameIcon = new ImageView(new Image("startnewgame.jpg")); // Replace with your icon path
+        ImageView newGameIcon = new ImageView(new Image("startnewgame.jpg"));
         newGameIcon.setFitHeight(40); // Set the height of the icon
         newGameIcon.setFitWidth(160);  // Set the width of the icon
 
@@ -105,7 +92,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         startNewGameButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
 
         // Create the load game button with custom icon
-        ImageView loadGameIcon = new ImageView(new Image("loadgame.png")); // Replace with your icon path
+        ImageView loadGameIcon = new ImageView(new Image("loadgame.png"));
         loadGameIcon.setFitHeight(40); // Set the height of the icon
         loadGameIcon.setFitWidth(160);  // Set the width of the icon
 
@@ -113,7 +100,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         loadGameButton.setGraphic(loadGameIcon); // Set the icon as graphic
         loadGameButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
 
-        Image backgroundImage = new Image("bg.jpeg"); // Replace with your image path
+        Image backgroundImage = new Image("bg.jpeg");
         BackgroundImage background = new BackgroundImage(backgroundImage,
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,

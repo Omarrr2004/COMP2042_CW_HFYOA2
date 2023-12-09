@@ -1,8 +1,10 @@
 package brickGame;
 
 import javafx.application.Platform;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 public class Score {
 
@@ -44,7 +46,7 @@ public class Score {
                     final int scale = Math.abs(i - 10);
                     final double opacity = (20 - scale) / 20.0;
                     Platform.runLater(() -> {
-                        label.setScaleX(scale / 2.0);  // Adjust the scale factor as needed
+                        label.setScaleX(scale / 2.0);
                         label.setScaleY(scale / 2.0);
                         label.setOpacity(opacity);
                     });
@@ -52,7 +54,7 @@ public class Score {
                 }
 
                 // Wait for a certain period (adjust the sleep time accordingly)
-                Thread.sleep(2000);  // Adjust this time based on your preference
+                Thread.sleep(2000);
 
                 // Remove the label from the UI after the wait period
                 Platform.runLater(() -> main.root.getChildren().remove(label));
@@ -65,18 +67,21 @@ public class Score {
 
     public void showGameOver(final Main main) {
         Platform.runLater(() -> {
-            Label label = new Label("Game Over :(");
-            label.setTranslateX(200);
-            label.setTranslateY(250);
-            label.setScaleX(2);
-            label.setScaleY(2);
+            ImageView gameOverImage = new ImageView(new Image("youlose.png"));
+            gameOverImage.setFitHeight(200); // Set the height of the image
+            gameOverImage.setFitWidth(400);  // Set the width of the image
+            gameOverImage.setTranslateX(53);
+            gameOverImage.setTranslateY(80);
 
-            Button restart = new Button("Restart");
-            restart.setTranslateX(220);
-            restart.setTranslateY(300);
-            restart.setOnAction(event -> main.restartGame());
+            ImageView restartIcon = new ImageView(new Image("restart.png"));
+            restartIcon.setFitHeight(40); // Set the height of the icon
+            restartIcon.setFitWidth(40);  // Set the width of the icon
+            restartIcon.setTranslateX(230); // Set X position
+            restartIcon.setTranslateY(385); // Set Y position
 
-            main.root.getChildren().addAll(label, restart);
+            restartIcon.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> main.restartGame());
+
+            main.root.getChildren().addAll(gameOverImage, restartIcon);
         });
     }
 
