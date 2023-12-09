@@ -239,8 +239,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 Block.BLOCK_BLOCK15, Block.BLOCK_BLOCK16, Block.BLOCK_CHOCO
         ));
 
-        // Total number of blocks in a level
-        int totalBlocks = 4 * (level + 1);
+        final int MAX_ROWS = 11;
+        final int BLOCKS_PER_ROW = 4;
+
+        // Calculate the total number of blocks based on the level, with a maximum of MAX_ROWS rows.
+        int rows = Math.min(level + 1, MAX_ROWS);
+        int totalBlocks = BLOCKS_PER_ROW * rows;
 
         // Creating a list to keep track of all positions
         ArrayList<Integer> positions = new ArrayList<>();
@@ -279,9 +283,9 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 type = blockTypes.get(typeIndex);
             }
 
-            int row = i / (level + 1);
-            int column = i % (level + 1);
-            blocks.add(new Block(column, row, type));
+            int row = i / BLOCKS_PER_ROW;
+            int column = i % BLOCKS_PER_ROW;
+            blocks.add(new Block(row, column, type));
         }
     }
 
