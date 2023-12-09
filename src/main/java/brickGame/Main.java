@@ -365,6 +365,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         ball = new Circle();
         ball.setRadius(ballRadius);
         ball.setFill(new ImagePattern(new Image("ball.png")));
+
+        vX = 0.0; // No horizontal movement at the start
+        vY = 2.0;
+        goDownBall = true;
+        goRightBall = false;
     }
 
 
