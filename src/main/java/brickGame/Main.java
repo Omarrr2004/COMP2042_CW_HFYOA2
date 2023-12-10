@@ -234,7 +234,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 Block.BLOCK_BLOCK3, Block.BLOCK_BLOCK4, Block.BLOCK_BLOCK5, Block.BLOCK_BLOCK6,
                 Block.BLOCK_BLOCK7, Block.BLOCK_BLOCK8, Block.BLOCK_BLOCK9, Block.BLOCK_BLOCK10,
                 Block.BLOCK_BLOCK11, Block.BLOCK_BLOCK12, Block.BLOCK_BLOCK13, Block.BLOCK_BLOCK14,
-                Block.BLOCK_BLOCK15, Block.BLOCK_BLOCK16, Block.BLOCK_CHOCO
+                Block.BLOCK_BLOCK15, Block.BLOCK_BLOCK16, Block.BLOCK_CHOCO, Block.BLOCK_UNBREAKABLE
         ));
 
         final int MAX_ROWS = 11;

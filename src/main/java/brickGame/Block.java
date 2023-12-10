@@ -31,10 +31,10 @@ public class Block implements Serializable {
 
 
     public static int NO_HIT = -1;
-    public static int HIT_RIGHT = 0;
-    public static int HIT_BOTTOM = 1;
-    public static int HIT_LEFT = 2;
-    public static int HIT_TOP = 3;
+    public static final int HIT_RIGHT = 0;
+    public static final int HIT_BOTTOM = 1;
+    public static final int HIT_LEFT = 2;
+    public static final int HIT_TOP = 3;
 
     public static int BLOCK_CHOCO = 100;
     public static int BLOCK_STAR = 101;
@@ -55,8 +55,7 @@ public class Block implements Serializable {
     public static int BLOCK_BLOCK14 = 116;
     public static int BLOCK_BLOCK15 = 117;
     public static int BLOCK_BLOCK16 = 118;
-
-
+    public static final int BLOCK_UNBREAKABLE = 119;
 
     public Block(int row, int column, int type) {
         this.row = row;
@@ -154,6 +153,10 @@ public class Block implements Serializable {
             Image image = new Image("star.jpg");
             ImagePattern pattern = new ImagePattern(image);
             rect.setFill(pattern);
+        }else if (type == BLOCK_UNBREAKABLE) {
+                Image image = new Image("unbreakable.jpg");
+                ImagePattern pattern = new ImagePattern(image);
+                rect.setFill(pattern);
         } else {
             rect.setFill(color);
         }
