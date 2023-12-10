@@ -116,7 +116,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     private void startNewGame() {
         // Resetting game state for a new game
-        level = 18;
+        level = 1;
         score = 0;
         heart = 3;
         destroyedBlockCount = 0;
