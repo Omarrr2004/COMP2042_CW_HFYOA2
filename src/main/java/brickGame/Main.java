@@ -32,7 +32,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     private int level = 1;
     private MediaPlayer mediaPlayer;
-    private ToggleButton audioToggle;
+    private Button audioButton;
     private double xBreak = 0.0f;
     private double centerBreakX;
     private double yBreak = 680.0f;
@@ -73,6 +73,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     Stage  primaryStage;
 
+    private ImageView audioOnIcon = new ImageView(new Image("audioOn.png"));
+    private ImageView audioOffIcon = new ImageView(new Image("audioOff.png"));
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
@@ -109,21 +111,28 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // For continuous play
 
-        audioToggle = new ToggleButton("Audio On/Off");
-        audioToggle.setLayoutX(startX);
-        audioToggle.setLayoutY(startY + 50); // Any position for now
+        audioButton = new Button();
+        ImageView audioIcon = new ImageView(new Image("audioOn.png"));
+        audioButton.setGraphic(audioIcon);
+        mediaPlayer.play();
 
-        audioToggle.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                mediaPlayer.play();
-            } else {
-                mediaPlayer.pause();
-            }
-        });
+        // Set the size of the audio button icon
+        double audioIconWidth = 40;
+        double audioIconHeight = 40;
+        audioIcon.setFitWidth(audioIconWidth);
+        audioIcon.setFitHeight(audioIconHeight);
+
+        double audioButtonX = 85;
+        double audioButtonY = 320;
+        audioButton.setLayoutX(audioButtonX);
+        audioButton.setLayoutY(audioButtonY);
+        audioButton.setStyle("-fx-background-color: transparent;");
+        audioButton.setOnAction(e -> toggleAudio());
+
 
         // Add buttons to menu
         menuPane.getChildren().addAll(startNewGameButton);
-        menuPane.getChildren().add(audioToggle);
+        menuPane.getChildren().add(audioButton);
 
         // Create menu scene
         Scene menuScene = new Scene(menuPane, sceneWidth, sceneHeigt);
@@ -147,12 +156,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         isGoldStatus = false;
         isExistHeartBlock = false;
 
-        if (audioToggle.isSelected()) {
-            mediaPlayer.play();
-        } else {
-            mediaPlayer.pause();
-        }
-
         // Initialize game components
         initBall();
         initBreak();
@@ -160,6 +163,38 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
         // Set up the game scene
         setupGameScene();
+    }
+
+    private void toggleAudio() {
+
+        double audioOnIconWidth = 40;
+        double audioOnIconHeight = 40;
+        audioOnIcon.setFitWidth(audioOnIconWidth);
+        audioOnIcon.setFitHeight(audioOnIconHeight);
+
+        double audioOnButtonX = 85;
+        double audioOnButtonY = 320;
+        audioButton.setLayoutX(audioOnButtonX);
+        audioButton.setLayoutY(audioOnButtonY);
+
+
+        double audioOffIconWidth = 40;
+        double audioOffIconHeight = 40;
+        audioOffIcon.setFitWidth(audioOffIconWidth);
+        audioOffIcon.setFitHeight(audioOffIconHeight);
+
+        double audioOffButtonX = 85;
+        double audioOffButtonY = 320;
+        audioButton.setLayoutX(audioOffButtonX);
+        audioButton.setLayoutY(audioOffButtonY);
+
+        if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+            mediaPlayer.pause();
+            audioButton.setGraphic(audioOffIcon);
+        } else {
+            mediaPlayer.play();
+            audioButton.setGraphic(audioOnIcon);
+        }
     }
 
 
