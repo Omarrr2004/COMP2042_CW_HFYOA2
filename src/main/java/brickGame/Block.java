@@ -55,7 +55,6 @@ public class Block implements Serializable {
     public static int BLOCK_BLOCK14 = 116;
     public static int BLOCK_BLOCK15 = 117;
     public static int BLOCK_BLOCK16 = 118;
-    public static final int BLOCK_UNBREAKABLE = 119;
 
     public Block(int row, int column, int type) {
         this.row = row;
@@ -153,10 +152,6 @@ public class Block implements Serializable {
             Image image = new Image("star.jpg");
             ImagePattern pattern = new ImagePattern(image);
             rect.setFill(pattern);
-        }else if (type == BLOCK_UNBREAKABLE) {
-                Image image = new Image("unbreakable.jpg");
-                ImagePattern pattern = new ImagePattern(image);
-                rect.setFill(pattern);
         } else {
             rect.setFill(color);
         }
