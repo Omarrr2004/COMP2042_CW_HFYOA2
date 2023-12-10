@@ -272,18 +272,19 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int sleepTime = 4;
+                int sleepTime = 5;
+                int movementIncrement = 2; // Increased from 1 to 2 for faster movement
                 for (int i = 0; i < 30; i++) {
                     if (direction == RIGHT) {
-                        if (xBreak + rect.getWidth() < sceneWidth) { // Use rect.getWidth()
-                            xBreak++;
+                        if (xBreak + rect.getWidth() + movementIncrement <= sceneWidth) {
+                            xBreak += movementIncrement;
                         }
                     } else if (direction == LEFT) {
-                        if (xBreak > 0) {
-                            xBreak--;
+                        if (xBreak - movementIncrement >= 0) {
+                            xBreak -= movementIncrement;
                         }
                     }
-                    centerBreakX = xBreak + rect.getWidth() / 2; // Use rect.getWidth()
+                    centerBreakX = xBreak + rect.getWidth() / 2;
                     try {
                         Thread.sleep(sleepTime);
                     } catch (InterruptedException e) {
@@ -296,6 +297,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         }).start();
     }
+
 
 
 
