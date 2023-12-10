@@ -366,14 +366,18 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         Random random = new Random();
         xBall = sceneWidth / 2.0;  // Start in the middle of the scene
 
-        // Calculate the last row for the current level
-        int lastRow = (level - 1) * 1 + 4;  // Increase the multiplier for each level
+        int lastRow;
+        if (level <= 10) {
+            lastRow = (level - 1) * 1 + 4;  // Increase the multiplier for each level
+        } else {
+            lastRow = 11;  // Maximum limit of 11 rows for levels after 10
+        }
 
         // Find the bottom position of the last block
         double lastBlockBottom = lastRow * Block.getHeight() + Block.getPaddingTop() + Block.getHeight();
 
         // Set yBall a little below the last block
-        yBall = lastBlockBottom + 15;
+        yBall = lastBlockBottom + 5;
 
         ball = new Circle();
         ball.setRadius(ballRadius);
