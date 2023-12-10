@@ -15,13 +15,11 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import java.util.Arrays;
 import javafx.scene.image.ImageView;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundSize;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -33,7 +31,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private double yBreak = 680.0f;
     private int breakWidth     = 160;
     private int breakHeight    = 13;
-    private int halfBreakWidth = breakWidth / 2;
     private int sceneWidth = 500;
     private int sceneHeigt = 700;
     private static int LEFT  = 1;
@@ -56,8 +53,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private long lastWidthChangeTime = 0;
 
     private PaddleState paddleState = PaddleState.NORMAL;
-    public static String savePath    = "D:/save/save.mdds";
-    public static String savePathDir = "D:/save/";
+
 
     private ArrayList<Block> blocks = new ArrayList<Block>();
     private ArrayList<Bonus> chocos = new ArrayList<Bonus>();
@@ -67,12 +63,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private Label            heartLabel;
     private Label            levelLabel;
 
-    private boolean loadFromSave = false;
 
     Stage  primaryStage;
-    Button load    = null;
-    Button newGame = null;
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -88,15 +80,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         Button startNewGameButton = new Button();
         startNewGameButton.setGraphic(newGameIcon); // Set the icon as graphic
         startNewGameButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
-
-        // Create the load game button with custom icon
-        ImageView loadGameIcon = new ImageView(new Image("loadgame.png"));
-        loadGameIcon.setFitHeight(40); // Set the height of the icon
-        loadGameIcon.setFitWidth(160);  // Set the width of the icon
-
-        Button loadGameButton = new Button();
-        loadGameButton.setGraphic(loadGameIcon); // Set the icon as graphic
-        loadGameButton.setStyle("-fx-background-color: transparent;"); // Make button background transparent
 
         Image backgroundImage = new Image("bg.jpeg");
         BackgroundImage background = new BackgroundImage(backgroundImage,
@@ -114,18 +97,16 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         // Position the buttons
         startNewGameButton.setLayoutX(startX);
         startNewGameButton.setLayoutY(startY);
-        loadGameButton.setLayoutX(startX);
-        loadGameButton.setLayoutY(startY + 50);
 
         // Add buttons to menu
-        menuPane.getChildren().addAll(startNewGameButton, loadGameButton);
+        menuPane.getChildren().addAll(startNewGameButton);
 
         // Create menu scene
         Scene menuScene = new Scene(menuPane, sceneWidth, sceneHeigt);
 
         // Actions for buttons
         startNewGameButton.setOnAction(e -> startNewGame());
-        loadGameButton.setOnAction(e -> loadGame());
+
 
         // Show menu
         primaryStage.setScene(menuScene);
@@ -135,13 +116,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     private void startNewGame() {
         // Resetting game state for a new game
-        level = 1;
+        level = 18;
         score = 0;
         heart = 3;
         destroyedBlockCount = 0;
         isGoldStatus = false;
         isExistHeartBlock = false;
-        loadFromSave = false;
 
         // Initialize game components
         initBall();
@@ -152,46 +132,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         setupGameScene();
     }
 
-    private void loadGame() {
-        LoadSave loadSave = new LoadSave();
-        loadSave.read();
 
-        // Set game state based on loaded data
-        isExistHeartBlock = loadSave.isExistHeartBlock;
-        isGoldStatus = loadSave.isGoldStauts;
-        goDownBall = loadSave.goDownBall;
-        goRightBall = loadSave.goRightBall;
-        colideToBreak = loadSave.colideToBreak;
-        colideToBreakAndMoveToRight = loadSave.colideToBreakAndMoveToRight;
-        colideToRightWall = loadSave.colideToRightWall;
-        colideToLeftWall = loadSave.colideToLeftWall;
-        colideToRightBlock = loadSave.colideToRightBlock;
-        colideToBottomBlock = loadSave.colideToBottomBlock;
-        colideToLeftBlock = loadSave.colideToLeftBlock;
-        colideToTopBlock = loadSave.colideToTopBlock;
-        level = loadSave.level;
-        score = loadSave.score;
-        heart = loadSave.heart;
-        destroyedBlockCount = loadSave.destroyedBlockCount;
-        xBall = loadSave.xBall;
-        yBall = loadSave.yBall;
-        xBreak = loadSave.xBreak;
-        yBreak = loadSave.yBreak;
-        centerBreakX = loadSave.centerBreakX;
-        time = loadSave.time;
-        goldTime = loadSave.goldTime;
-        vX = loadSave.vX;
-
-        // Clear and reload blocks
-        blocks.clear();
-        chocos.clear();
-        for (BlockSerializable ser : loadSave.blocks) {
-            blocks.add(new Block(ser.row, ser.column, ser.type));
-        }
-
-        // Set up the game scene with loaded data
-        setupGameScene();
-    }
 
 
     private void setupGameScene() {
@@ -311,9 +252,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 break;
             case P:
                 pauseGame();
-                break;
-            case S:
-                saveGame();
                 break;
         }
     }
@@ -604,74 +542,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     }
 
 
-    private void saveGame() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new File(savePathDir).mkdirs();
-                File file = new File(savePath);
-                ObjectOutputStream outputStream = null;
-                try {
-                    outputStream = new ObjectOutputStream(new FileOutputStream(file));
 
-                    outputStream.writeInt(level);
-                    outputStream.writeInt(score);
-                    outputStream.writeInt(heart);
-                    outputStream.writeInt(destroyedBlockCount);
-
-
-                    outputStream.writeDouble(xBall);
-                    outputStream.writeDouble(yBall);
-                    outputStream.writeDouble(xBreak);
-                    outputStream.writeDouble(yBreak);
-                    outputStream.writeDouble(centerBreakX);
-                    outputStream.writeLong(time);
-                    outputStream.writeLong(goldTime);
-                    outputStream.writeDouble(vX);
-
-
-                    outputStream.writeBoolean(isExistHeartBlock);
-                    outputStream.writeBoolean(isGoldStatus);
-                    outputStream.writeBoolean(goDownBall);
-                    outputStream.writeBoolean(goRightBall);
-                    outputStream.writeBoolean(colideToBreak);
-                    outputStream.writeBoolean(colideToBreakAndMoveToRight);
-                    outputStream.writeBoolean(colideToRightWall);
-                    outputStream.writeBoolean(colideToLeftWall);
-                    outputStream.writeBoolean(colideToRightBlock);
-                    outputStream.writeBoolean(colideToBottomBlock);
-                    outputStream.writeBoolean(colideToLeftBlock);
-                    outputStream.writeBoolean(colideToTopBlock);
-
-                    ArrayList<BlockSerializable> blockSerializables = new ArrayList<BlockSerializable>();
-                    for (Block block : blocks) {
-                        if (block.isDestroyed) {
-                            continue;
-                        }
-                        blockSerializables.add(new BlockSerializable(block.row, block.column, block.type));
-                    }
-
-                    outputStream.writeObject(blockSerializables);
-
-                    new Score().showMessage("Game Saved", Main.this);
-
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        outputStream.flush();
-                        outputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-
-    }
     private boolean isLevelCompleted = false;
 
     private void nextLevel() {
@@ -897,9 +768,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                     }
 
                 }
-
-                //TODO hit to break and some work here....
-                //System.out.println("Break in row:" + block.row + " and column:" + block.column + " hit");
             }}
         }
     }
