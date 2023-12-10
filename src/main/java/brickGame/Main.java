@@ -22,10 +22,17 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundSize;
 import java.util.ArrayList;
 import java.util.Random;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.control.ToggleButton;
+
+
 
 public class Main extends Application implements EventHandler<KeyEvent>, GameEngine.OnAction {
 
     private int level = 1;
+    private MediaPlayer mediaPlayer;
+    private ToggleButton audioToggle;
     private double xBreak = 0.0f;
     private double centerBreakX;
     private double yBreak = 680.0f;
@@ -98,8 +105,25 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         startNewGameButton.setLayoutX(startX);
         startNewGameButton.setLayoutY(startY);
 
+        Media media = new Media(getClass().getResource("/themesong.mp3").toExternalForm());
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // For continuous play
+
+        audioToggle = new ToggleButton("Audio On/Off");
+        audioToggle.setLayoutX(startX);
+        audioToggle.setLayoutY(startY + 50); // Any position for now
+
+        audioToggle.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                mediaPlayer.play();
+            } else {
+                mediaPlayer.pause();
+            }
+        });
+
         // Add buttons to menu
         menuPane.getChildren().addAll(startNewGameButton);
+        menuPane.getChildren().add(audioToggle);
 
         // Create menu scene
         Scene menuScene = new Scene(menuPane, sceneWidth, sceneHeigt);
@@ -123,6 +147,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         isGoldStatus = false;
         isExistHeartBlock = false;
 
+        if (audioToggle.isSelected()) {
+            mediaPlayer.play();
+        } else {
+            mediaPlayer.pause();
+        }
+
         // Initialize game components
         initBall();
         initBreak();
@@ -133,6 +163,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     }
 
 
+    @Override
+    public void stop() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
+    }
 
 
     private void setupGameScene() {
