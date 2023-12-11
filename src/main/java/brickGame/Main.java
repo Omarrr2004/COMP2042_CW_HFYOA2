@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.control.ToggleButton;
 
 
 
@@ -80,7 +79,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         this.primaryStage = primaryStage;
 
         // Menu Pane
-        Pane menuPane = new Pane();
+        this.root = new Pane();
 
         ImageView newGameIcon = new ImageView(new Image("startnewgame.jpg"));
         newGameIcon.setFitHeight(40); // Set the height of the icon
@@ -97,7 +96,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false));
 
         // Set the background on the pane
-        menuPane.setBackground(new Background(background));
+        this.root.setBackground(new Background(background));
 
 
         double startX = 25;
@@ -131,11 +130,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
         // Add buttons to menu
-        menuPane.getChildren().addAll(startNewGameButton);
-        menuPane.getChildren().add(audioButton);
+        this.root.getChildren().addAll(startNewGameButton);
+        this.root.getChildren().add(audioButton);
 
         // Create menu scene
-        Scene menuScene = new Scene(menuPane, sceneWidth, sceneHeigt);
+        Scene menuScene = new Scene(this.root, sceneWidth, sceneHeigt);
 
         // Actions for buttons
         startNewGameButton.setOnAction(e -> startNewGame());
@@ -148,6 +147,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     }
 
     private void startNewGame() {
+
+        isGameStarted = true;
         // Resetting game state for a new game
         level = 1;
         score = 0;
@@ -164,7 +165,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         // Set up the game scene
         setupGameScene();
     }
-
+    private boolean isGameStarted = false;
     private void toggleAudio() {
 
         double audioOnIconWidth = 40;
@@ -191,6 +192,9 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
             mediaPlayer.pause();
             audioButton.setGraphic(audioOffIcon);
+            if(isGameStarted){
+                new Score().showMessage("Muted",this);
+            }
         } else {
             mediaPlayer.play();
             audioButton.setGraphic(audioOnIcon);
@@ -324,6 +328,10 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             case P:
                 pauseGame();
                 break;
+            case M:
+                toggleAudio();
+                break;
+
         }
     }
 
