@@ -838,18 +838,18 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
                     }
                     else{
-                    if (hitCode == Block.HIT_RIGHT) {
-                        colideToRightBlock = true;
-                    } else if (hitCode == Block.HIT_BOTTOM) {
-                        colideToBottomBlock = true;
-                    } else if (hitCode == Block.HIT_LEFT) {
-                        colideToLeftBlock = true;
-                    } else if (hitCode == Block.HIT_TOP) {
-                        colideToTopBlock = true;
-                    }
+                        if (hitCode == Block.HIT_RIGHT) {
+                            colideToRightBlock = true;
+                        } else if (hitCode == Block.HIT_BOTTOM) {
+                            colideToBottomBlock = true;
+                        } else if (hitCode == Block.HIT_LEFT) {
+                            colideToLeftBlock = true;
+                        } else if (hitCode == Block.HIT_TOP) {
+                            colideToTopBlock = true;
+                        }
 
-                }
-            }}
+                    }
+                }}
         }
     }
 
