@@ -6,8 +6,19 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 
+/**
+ * The Score class provides methods to display score changes, messages, and game-over screens in the game.
+ */
 public class Score {
-
+    /**
+     * Displays a score change at a specific position on the game screen.
+     * The score is shown with an animation and gradually fades away.
+     *
+     * @param x     The x-coordinate where the score will be displayed.
+     * @param y     The y-coordinate where the score will be displayed.
+     * @param score The score value to display.
+     * @param main  The main game object containing the game's root pane.
+     */
     public void show(final double x, final double y, int score, final Main main) {
         String sign = (score >= 0) ? "+" : "";
         final Label label = new Label(sign + score);
@@ -33,6 +44,13 @@ public class Score {
         }).start();
     }
 
+    /**
+     * Displays a message in the game scene for a short duration.
+     * The message label appears, scales, and fades away.
+     *
+     * @param message The message to be displayed.
+     * @param main    The main game object containing the game's root pane.
+     */
     public void showMessage(String message, final Main main) {
         final Label label = new Label(message);
         label.setTranslateX(220);
@@ -64,7 +82,11 @@ public class Score {
         }).start();
     }
 
-
+    /**
+     * Displays the game over screen with an option to restart the game.
+     *
+     * @param main The main game object containing the game's root pane.
+     */
     public void showGameOver(final Main main) {
         Platform.runLater(() -> {
             ImageView gameOverImage = new ImageView(new Image("youlose.png"));
