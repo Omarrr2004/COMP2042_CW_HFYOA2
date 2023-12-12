@@ -30,6 +30,7 @@ import javafx.scene.media.MediaPlayer;
 public class Main extends Application implements EventHandler<KeyEvent>, GameEngine.OnAction {
 
     private int level = 1;
+    private boolean isGameStarted = false;
     private MediaPlayer mediaPlayer;
     private Button audioButton;
     private double xBreak = 0.0f;
@@ -54,26 +55,34 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private long time     = 0;
     private long hitTime  = 0;
     private long goldTime = 0;
-
     private GameEngine engine;
     private long lastWidthChangeTime = 0;
-
     private PaddleState paddleState = PaddleState.NORMAL;
-
-
     private ArrayList<Block> blocks = new ArrayList<Block>();
     private ArrayList<Bonus> chocos = new ArrayList<Bonus>();
-
     public  Pane             root;
     private Label            scoreLabel;
     private Label            heartLabel;
     private Label            levelLabel;
-
+    private ImageView audioOnIcon = new ImageView(new Image("audioOn.png"));
+    private ImageView audioOffIcon = new ImageView(new Image("audioOff.png"));
+    private boolean isPaused;
+    private boolean goDownBall                  = true;
+    private boolean goRightBall                 = true;
+    private boolean collideToBreak = false;
+    private boolean collideToBreakAndMoveToRight = true;
+    private boolean collideToRightWall = false;
+    private boolean collideToLeftWall = false;
+    private boolean collideToRightBlock = false;
+    private boolean collideToBottomBlock = false;
+    private boolean collideToLeftBlock = false;
+    private boolean collideToTopBlock = false;
+    private boolean isLevelCompleted = false;
+    private double vX = 2.000;
+    private double vY = 2.000;
 
     Stage  primaryStage;
 
-    private ImageView audioOnIcon = new ImageView(new Image("audioOn.png"));
-    private ImageView audioOffIcon = new ImageView(new Image("audioOff.png"));
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
@@ -165,7 +174,40 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         // Set up the game scene
         setupGameScene();
     }
-    private boolean isGameStarted = false;
+
+    private void setupGameScene() {
+        root = new Pane();
+        scoreLabel = new Label("Score: " + score);
+        heartLabel = new Label("Heart: " + heart);
+        levelLabel = new Label("Level: " + level);
+
+        // Position labels
+        heartLabel.setTranslateX(sceneWidth - 70);
+        levelLabel.setTranslateY(20);
+
+        root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel);
+        for (Block block : blocks) {
+            root.getChildren().add(block.rect);
+        }
+
+        Scene scene = new Scene(root, sceneWidth, sceneHeigt);
+        scene.getStylesheets().add("style.css");
+        scene.setOnKeyPressed(this);
+
+        // Configure and show the primary stage
+        primaryStage.setTitle("Brick Game");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+        // Start the game engine
+        engine = new GameEngine();
+        engine.setOnAction(this);
+        engine.setFps(120);
+        engine.start();
+    }
+
+
+
     private void toggleAudio() {
 
         double audioOnIconWidth = 40;
@@ -210,38 +252,52 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     }
 
 
-    private void setupGameScene() {
-        root = new Pane();
-        scoreLabel = new Label("Score: " + score);
-        heartLabel = new Label("Heart: " + heart);
-        levelLabel = new Label("Level: " + level);
+    private void initBall() {
+        Random random = new Random();
+        xBall = sceneWidth / 2.0;  // Start in the middle of the scene
 
-        // Position labels
-        heartLabel.setTranslateX(sceneWidth - 70);
-        levelLabel.setTranslateY(20);
-
-        root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel);
-        for (Block block : blocks) {
-            root.getChildren().add(block.rect);
+        int lastRow;
+        if (level <= 10) {
+            lastRow = (level - 1) * 1 + 4;  // Increase the multiplier for each level
+        } else {
+            lastRow = 11;  // Maximum limit of 11 rows for levels after 10
         }
 
-        Scene scene = new Scene(root, sceneWidth, sceneHeigt);
-        scene.getStylesheets().add("style.css");
-        scene.setOnKeyPressed(this);
+        // Find the bottom position of the last block
+        double lastBlockBottom = lastRow * Block.getHeight() + Block.getPaddingTop() + Block.getHeight();
 
-        // Configure and show the primary stage
-        primaryStage.setTitle("Brick Game");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        // Set yBall a little below the last block
+        yBall = lastBlockBottom + 5;
 
-        // Start the game engine
-        engine = new GameEngine();
-        engine.setOnAction(this);
-        engine.setFps(120);
-        engine.start();
+        ball = new Circle();
+        ball.setRadius(ballRadius);
+        ball.setFill(new ImagePattern(new Image("ball.png")));
+
+        vX = 0.0; // No horizontal movement at the start
+        vY = 2.0;
+        goDownBall = true;
+        goRightBall = false;
     }
 
 
+
+
+    private void initBreak() {
+        rect = new Rectangle();
+        rect.setWidth(breakWidth);
+        rect.setHeight(breakHeight);
+        rect.setArcWidth(10);
+        rect.setArcHeight(10);
+
+        // Center the playing block at the beginning of each level
+        xBreak = (sceneWidth - breakWidth) / 2.0;
+
+        rect.setX(xBreak);
+        rect.setY(yBreak);
+
+        ImagePattern pattern = new ImagePattern(new Image("block.jpg"));
+        rect.setFill(pattern);
+    }
 
     private void initBoard() {
         Random random = new Random();
@@ -305,9 +361,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
 
-
-
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -319,11 +372,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 move(LEFT);
                 break;
             case RIGHT:
-
                 move(RIGHT);
-                break;
-            case DOWN:
-                //setPhysicsToBall();
                 break;
             case P:
                 pauseGame();
@@ -334,8 +383,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
         }
     }
-
-    private boolean isPaused;
 
     private void pauseGame(){
         isPaused = !isPaused;
@@ -378,84 +425,17 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     }
 
 
+    private void resetCollideFlags() {
 
+        collideToBreak = false;
+        collideToBreakAndMoveToRight = false;
+        collideToRightWall = false;
+        collideToLeftWall = false;
 
-
-    private void initBall() {
-        Random random = new Random();
-        xBall = sceneWidth / 2.0;  // Start in the middle of the scene
-
-        int lastRow;
-        if (level <= 10) {
-            lastRow = (level - 1) * 1 + 4;  // Increase the multiplier for each level
-        } else {
-            lastRow = 11;  // Maximum limit of 11 rows for levels after 10
-        }
-
-        // Find the bottom position of the last block
-        double lastBlockBottom = lastRow * Block.getHeight() + Block.getPaddingTop() + Block.getHeight();
-
-        // Set yBall a little below the last block
-        yBall = lastBlockBottom + 5;
-
-        ball = new Circle();
-        ball.setRadius(ballRadius);
-        ball.setFill(new ImagePattern(new Image("ball.png")));
-
-        vX = 0.0; // No horizontal movement at the start
-        vY = 2.0;
-        goDownBall = true;
-        goRightBall = false;
-    }
-
-
-
-
-    private void initBreak() {
-        rect = new Rectangle();
-        rect.setWidth(breakWidth);
-        rect.setHeight(breakHeight);
-        rect.setArcWidth(10);
-        rect.setArcHeight(10);
-
-        // Center the playing block at the beginning of each level
-        xBreak = (sceneWidth - breakWidth) / 2.0;
-
-        rect.setX(xBreak);
-        rect.setY(yBreak);
-
-        ImagePattern pattern = new ImagePattern(new Image("block.jpg"));
-        rect.setFill(pattern);
-    }
-
-
-
-    private boolean goDownBall                  = true;
-    private boolean goRightBall                 = true;
-    private boolean colideToBreak               = false;
-    private boolean colideToBreakAndMoveToRight = true;
-    private boolean colideToRightWall           = false;
-    private boolean colideToLeftWall            = false;
-    private boolean colideToRightBlock          = false;
-    private boolean colideToBottomBlock         = false;
-    private boolean colideToLeftBlock           = false;
-    private boolean colideToTopBlock            = false;
-
-    private double vX = 2.000;
-    private double vY = 2.000;
-
-
-    private void resetColideFlags() {
-
-        colideToBreak = false;
-        colideToBreakAndMoveToRight = false;
-        colideToRightWall = false;
-        colideToLeftWall = false;
-
-        colideToRightBlock = false;
-        colideToBottomBlock = false;
-        colideToLeftBlock = false;
-        colideToTopBlock = false;
+        collideToRightBlock = false;
+        collideToBottomBlock = false;
+        collideToLeftBlock = false;
+        collideToTopBlock = false;
     }
 
     private void resetBallAndBreakPosition() {
@@ -476,7 +456,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
     private void setPhysicsToBall() {
-        //v = ((time - hitTime) / 1000.000) + 1.000;
 
         if (goDownBall) {
             yBall += vY;
@@ -491,8 +470,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
 
         if (yBall <= 0) {
-            //vX = 1.000;
-            resetColideFlags();
+            resetCollideFlags();
             goDownBall = true;
             return;
         }
@@ -512,80 +490,73 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
 
         if (yBall >= yBreak - ballRadius) {
-            //System.out.println("Colide1");
             if (xBall >= xBreak && xBall <= xBreak + rect.getWidth()) {
                 hitTime = time;
-                resetColideFlags();
-                colideToBreak = true;
+                resetCollideFlags();
+                collideToBreak = true;
                 goDownBall = false;
 
                 double relation = (xBall - centerBreakX) / (breakWidth / 2);
 
                 if (Math.abs(relation) <= 0.3) {
-                    //vX = 0;
                     vX = Math.abs(relation);
                 } else if (Math.abs(relation) > 0.3 && Math.abs(relation) <= 0.7) {
                     vX = (Math.abs(relation) * 1.5) + (level / 3.500);
-                    //System.out.println("vX " + vX);
                 } else {
                     vX = (Math.abs(relation) * 2) + (level / 3.500);
-                    //System.out.println("vX " + vX);
                 }
 
                 if (xBall - centerBreakX > 0) {
-                    colideToBreakAndMoveToRight = true;
+                    collideToBreakAndMoveToRight = true;
                 } else {
-                    colideToBreakAndMoveToRight = false;
+                    collideToBreakAndMoveToRight = false;
                 }
-                //System.out.println("Colide2");
             }
         }
 
         if (xBall >= sceneWidth) {
-            resetColideFlags();
-            //vX = 1.000;
-            colideToRightWall = true;
+            resetCollideFlags();
+            collideToRightWall = true;
         }
 
         if (xBall <= 0) {
-            resetColideFlags();
-            //vX = 1.000;
-            colideToLeftWall = true;
+            resetCollideFlags();
+            collideToLeftWall = true;
         }
 
-        if (colideToBreak) {
-            if (colideToBreakAndMoveToRight) {
+        if (collideToBreak) {
+            if (collideToBreakAndMoveToRight) {
                 goRightBall = true;
             } else {
                 goRightBall = false;
             }
         }
 
-        //Wall Colide
+        //Wall Collide
 
-        if (colideToRightWall) {
+        if (collideToRightWall) {
             goRightBall = false;
         }
 
-        if (colideToLeftWall) {
+        if (collideToLeftWall) {
             goRightBall = true;
         }
 
-        //Block Colide
+        //Block Collide
 
-        if (colideToRightBlock) {
+        if (collideToRightBlock) {
             goRightBall = true;
         }
 
-        if (colideToLeftBlock) {
+        if (collideToLeftBlock) {
             goRightBall = true;
         }
 
-        if (colideToTopBlock) {
+        if (collideToTopBlock) {
             goDownBall = false;
         }
 
-        if (colideToBottomBlock) {
+        if (collideToBottomBlock) {
             goDownBall = true;
         }
 
@@ -609,7 +580,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         });
     }
 
-
     private void checkDestroyedCount() {
         if (destroyedBlockCount == blocks.size()) {
             if (level == 18) {
@@ -621,10 +591,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         }
     }
-
-
-
-    private boolean isLevelCompleted = false;
 
     private void nextLevel() {
         Platform.runLater(new Runnable() {
@@ -638,7 +604,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
                         // Reset game state for the new level
                         vX = 1.000;
-                        resetColideFlags();
+                        resetCollideFlags();
                         goDownBall = true;
 
                         isGoldStatus = false;
@@ -666,20 +632,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         });
     }
-    private void updateGameScene() {
-
-        root.getChildren().clear();
-        root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel);
-        for (Block block : blocks) {
-            root.getChildren().add(block.rect);
-        }
-
-        // Update labels
-        scoreLabel.setText("Score: " + score);
-        heartLabel.setText("Heart: " + heart);
-        levelLabel.setText("Level: " + level);
-    }
-
 
     public void restartGame() {
 
@@ -689,7 +641,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             score = 0;
             vX = 1.000;
             destroyedBlockCount = 0;
-            resetColideFlags();
+            resetCollideFlags();
             goDownBall = true;
 
             isGoldStatus = false;
@@ -707,17 +659,33 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
+    private void updateGameScene() {
+
+        root.getChildren().clear();
+        root.getChildren().addAll(rect, ball, scoreLabel, heartLabel, levelLabel);
+        for (Block block : blocks) {
+            root.getChildren().add(block.rect);
+        }
+
+        // Update labels
+        scoreLabel.setText("Score: " + score);
+        heartLabel.setText("Heart: " + heart);
+        levelLabel.setText("Level: " + level);
+    }
+
     private enum PaddleState {
         NORMAL, INCREASED, DECREASED
     }
+
     private void changePaddleWidth(boolean increase) {
         Platform.runLater(() -> {
             long currentTime = System.currentTimeMillis();
-            if (currentTime - lastWidthChangeTime >= 9000) { // 9 seconds
+            if (currentTime - lastWidthChangeTime >= 9000) {
                 if ((increase && paddleState != PaddleState.INCREASED) || (!increase && paddleState != PaddleState.DECREASED)) {
                     double originalWidth = rect.getWidth();
                     double newWidth = increase ? originalWidth * 1.25 : originalWidth * 0.75;
                     double newX = xBreak;
+
                     if (newX + newWidth > sceneWidth) {
                         newX = sceneWidth - newWidth;
                     } else if (newX < 0) {
@@ -728,12 +696,13 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                     rect.setWidth(newWidth);
                     paddleState = increase ? PaddleState.INCREASED : PaddleState.DECREASED;
 
-                    lastWidthChangeTime = currentTime; // Update the timestamp
+                    lastWidthChangeTime = currentTime;
                     resetPaddleWidthAfterDelay();
                 }
             }
         });
     }
+
 
 
     private void resetPaddleWidthAfterDelay() {
@@ -759,8 +728,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         });
     }
-
-
 
     @Override
     public void onUpdate() {
@@ -808,8 +775,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                     block.rect.setVisible(false);
                     block.isDestroyed = true;
                     destroyedBlockCount++;
-                    //System.out.println("size is " + blocks.size());
-                    resetColideFlags();
+                    resetCollideFlags();
 
                     if (block.type == Block.BLOCK_CHOCO) {
                         final Bonus choco = new Bonus(block.row, block.column);
@@ -839,13 +805,13 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                     }
                     else{
                         if (hitCode == Block.HIT_RIGHT) {
-                            colideToRightBlock = true;
+                            collideToRightBlock = true;
                         } else if (hitCode == Block.HIT_BOTTOM) {
-                            colideToBottomBlock = true;
+                            collideToBottomBlock = true;
                         } else if (hitCode == Block.HIT_LEFT) {
-                            colideToLeftBlock = true;
+                            collideToLeftBlock = true;
                         } else if (hitCode == Block.HIT_TOP) {
-                            colideToTopBlock = true;
+                            collideToTopBlock = true;
                         }
 
                     }
